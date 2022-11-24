@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Typography } from "../../../../components/Wrappers";
 import { LIMIT, PAGE, SORTBY, DESCENDING } from "../../../../context/config"
 import { useUserDispatch, deleteCustomer, updateCustomer, customersList } from "../../../../context/UserContext";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import {
   Table,
   TableRow,
@@ -80,6 +82,9 @@ export default function TableComponent({ data, history }) {
 
   const handleUpdate = () => {
     updateCustomer(userDispatch, id, name, address, email, mobile, gender, history, setIsLoading, setError, LIMIT, PAGE, SORTBY, DESCENDING, setErrors)
+    setTimeout(() => {
+      toast.success("Customer updated successfully.")
+    }, 2000);
   }
 
   const handleSorting = (e, type) => {
@@ -94,10 +99,11 @@ export default function TableComponent({ data, history }) {
     fetch()
     //setDescendings(descendingsOrder)
   }
-  console.log("iddddd", id)
+
   return (
     <>
       <div>
+        <ToastContainer />
         <Modal
           open={open}
           onClose={handleClose}

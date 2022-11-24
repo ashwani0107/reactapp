@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { LIMIT, PAGE, SORTBY, DESCENDING } from "../../context/config"
 import useStyles from "./styles";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 import {
@@ -101,6 +103,9 @@ export default function Dashboard(props) {
 
   const handleSave = () => {
     addCustomer(userDispatch, name, address, email, mobile, gender, props.history, setIsLoading, setError, limit, page, sortby, descending, setErrors)
+    setTimeout(() => {
+      toast.success("Customer added successfully.")
+    }, 2000);
 
   }
 
@@ -157,10 +162,11 @@ export default function Dashboard(props) {
   }
 
 
-  console.log("listings", listings)
+
   return (
     <>
       <div>
+        <ToastContainer />
         <Modal
           open={open}
           onClose={handleClose}
@@ -168,6 +174,7 @@ export default function Dashboard(props) {
           aria-describedby="modal-modal-description"
         >
           <Box sx={style}>
+
             <Typography id="modal-modal-title" variant="h6" component="h2">
               Add Customer
 

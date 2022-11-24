@@ -1,6 +1,8 @@
 import React from "react";
 import { API_BASE_URL } from "./config"
 import axios from 'axios'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 var UserStateContext = React.createContext();
 var UserDispatchContext = React.createContext();
@@ -26,11 +28,13 @@ function UserProvider({ children }) {
   });
 
   return (
+
     <UserStateContext.Provider value={state}>
       <UserDispatchContext.Provider value={dispatch}>
         {children}
       </UserDispatchContext.Provider>
     </UserStateContext.Provider>
+
   );
 }
 
@@ -261,8 +265,10 @@ function addCustomer(dispatch, name, address, email, mobile, gender, history, se
         //localStorage.setItem('id_token', responses && responses.data && responses.data.token)
         setError(null)
         setIsLoading(false)
+
         history.push('/app/dashboard')
       }, 2000);
+
 
     } else {
 
