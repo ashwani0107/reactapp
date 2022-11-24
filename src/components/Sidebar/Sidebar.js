@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Drawer, IconButton, List } from "@material-ui/core";
 import {
   Home as HomeIcon,
-  NotificationsNone as NotificationsIcon,
+  //NotificationsNone as NotificationsIcon,
   FormatSize as TypographyIcon,
   FilterNone as UIElementsIcon,
   BorderAll as TableIcon,
@@ -20,7 +20,7 @@ import useStyles from "./styles";
 
 // components
 import SidebarLink from "./components/SidebarLink/SidebarLink";
-import Dot from "./components/Dot";
+//import Dot from "./components/Dot";
 
 // context
 import {

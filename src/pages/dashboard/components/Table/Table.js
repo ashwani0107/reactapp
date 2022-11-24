@@ -52,13 +52,13 @@ export default function TableComponent({ data, history }) {
   const handleCloseEdit = () => { setOpenEdit(false); setIsLoading(false) }
   const [openEdit, setOpenEdit] = useState(false);
 
-  var [gender, setGender] = useState("Male");
+  var [gender, setGender] = useState("Select Gender");
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
   const [descendings, setDescendings] = useState(DESCENDING);
-
+  const [errors, setErrors] = useState({});
 
   const confirmModel = (e, id) => {
     setId(id)
@@ -79,19 +79,22 @@ export default function TableComponent({ data, history }) {
   }
 
   const handleUpdate = () => {
-    updateCustomer(userDispatch, id, name, address, email, mobile, gender, history, setIsLoading, setError, LIMIT, PAGE, SORTBY, DESCENDING)
+    updateCustomer(userDispatch, id, name, address, email, mobile, gender, history, setIsLoading, setError, LIMIT, PAGE, SORTBY, DESCENDING, setErrors)
   }
 
   const handleSorting = (e, type) => {
-    var descendingsOrder = descendings === true ? false : descendings === false ? true : null
-    setDescendings(descendingsOrder)
+    //console.log("descendings", descendings)
 
+    var descOrder = localStorage.getItem("descorder");
+    let descendingsOrder = descendings || descOrder === true ? false : descOrder === false ? true : null
+    localStorage.setItem('descorder', descendingsOrder)
     const fetch = async () => {
       await customersList(userDispatch, setIsLoading, LIMIT, PAGE, type, descendingsOrder)
     }
     fetch()
+    //setDescendings(descendingsOrder)
   }
-  console.log("descendings", descendings)
+  console.log("iddddd", id)
   return (
     <>
       <div>
@@ -149,9 +152,7 @@ export default function TableComponent({ data, history }) {
               Update Customer
 
             </Typography>
-            {/* <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-              Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-            </Typography> */}
+
             <TextField
               id="name"
               InputProps={{
@@ -167,9 +168,10 @@ export default function TableComponent({ data, history }) {
               type="text"
               fullWidth
             />
-            {/* <Typography color="secondary" className={classes.errorMessage}>
-              Something is wrong with your login or password
-            </Typography> */}
+            {errors.name && <Typography color="secondary" className={classes.errorMessage}>
+              {errors.name}
+            </Typography>}
+
             <TextField
               id="address"
               InputProps={{
@@ -185,6 +187,9 @@ export default function TableComponent({ data, history }) {
               type="text"
               fullWidth
             />
+            {errors.address && <Typography color="secondary" className={classes.errorMessage}>
+              {errors.address}
+            </Typography>}
             <TextField
               id="email"
               InputProps={{
@@ -200,6 +205,9 @@ export default function TableComponent({ data, history }) {
               type="text"
               fullWidth
             />
+            {errors.email && <Typography color="secondary" className={classes.errorMessage}>
+              {errors.email}
+            </Typography>}
             <TextField
               id="mobile_no"
               InputProps={{
@@ -214,22 +222,12 @@ export default function TableComponent({ data, history }) {
               placeholder="Mobile Number"
               type="text"
               fullWidth
-              required
+              inputProps={{ maxLength: 12 }}
             />
-            {/* <TextField
-              id="name"
-              InputProps={{
-                classes: {
-                  underline: classes.textFieldUnderline,
-                  input: classes.textField,
-                },
-              }}
+            {errors.mobile && <Typography color="secondary" className={classes.errorMessage}>
+              {errors.mobile}
+            </Typography>}
 
-              margin="normal"
-              placeholder="Name"
-              type="text"
-              fullWidth
-            /> */}
             <Select
               value={gender}
               onChange={e => setGender(e.target.value)}
@@ -241,39 +239,44 @@ export default function TableComponent({ data, history }) {
               }
               className={classes.select}
               fullWidth
-            >
+            ><MenuItem value="Select Gender">Select Gender</MenuItem>
               <MenuItem value="Male">Male</MenuItem>
               <MenuItem value="Female">Female</MenuItem>
 
             </Select>
+            {errors.gender && <Typography color="secondary" className={classes.errorMessage}>
+              {errors.gender}
+            </Typography>}
+            <div style={{ marginTop: '20px' }}>
+              <Button
+                variant="contained"
+                color="primary"
+                size="large"
+                onClick={handleUpdate}
+              >
+                Update
+              </Button>
 
-            <Button
-              variant="contained"
-              color="primary"
-              size="large"
-              onClick={handleUpdate}
-            >
-              Update
-            </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                size="large"
+                style={{ marginLeft: '10px' }}
+                onClick={handleCloseEdit}
+              >
 
-            <Button
-              variant="contained"
-              color="primary"
-              size="large"
-              style={{ marginLeft: '10px' }}
-              onClick={handleCloseEdit}
-            >
-
-              Close
-            </Button>
+                Close
+              </Button>
+            </div>
           </Box>
 
         </Modal>
       </div>
+      {isLoading &&
+        <Typography id="modal-modal-title" variant="h6" component="h2">
+          <CircularProgress size={26} className={classes.loginLoader} /></Typography>}
       <Table className="mb-0">
-        {isLoading &&
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            <CircularProgress size={26} className={classes.loginLoader} /></Typography>}
+
         <TableHead>
           <TableRow>
             {/* {keys.map(key => (
@@ -299,7 +302,7 @@ export default function TableComponent({ data, history }) {
                 <TableCell>{obj.address}</TableCell>
                 <TableCell>{obj.mobile_no}</TableCell>
                 <TableCell>{obj.gender}</TableCell>
-                <TableCell><a onClick={(e) => openEditCustomerModel(e, obj)} style={{ cursor: "pointer" }}><Icons.Create style={{ marginRight: 16 }} /></a> <a onClick={(e) => confirmModel(e, id)} style={{ cursor: "pointer" }}><Icons.RestoreFromTrash style={{ marginRight: 16 }} /></a></TableCell>
+                <TableCell><a onClick={(e) => openEditCustomerModel(e, obj)} style={{ cursor: "pointer" }}><Icons.Create style={{ marginRight: 16 }} /></a> <a onClick={(e) => confirmModel(e, obj.id)} style={{ cursor: "pointer" }}><Icons.RestoreFromTrash style={{ marginRight: 16 }} /></a></TableCell>
 
 
                 {/* <TableCell>

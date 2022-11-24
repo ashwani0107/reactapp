@@ -7,14 +7,10 @@ import {
   Menu,
   MenuItem,
   Fab,
-  Link
 } from "@material-ui/core";
 import {
   Menu as MenuIcon,
-  MailOutline as MailIcon,
-  NotificationsNone as NotificationsIcon,
   Person as AccountIcon,
-  Search as SearchIcon,
   Send as SendIcon,
   ArrowBack as ArrowBackIcon,
 } from "@material-ui/icons";
@@ -24,7 +20,7 @@ import classNames from "classnames";
 import useStyles from "./styles";
 
 // components
-import { Badge, Typography, Button } from "../Wrappers";
+import { Typography } from "../Wrappers";
 import Notification from "../Notification/Notification";
 import UserAvatar from "../UserAvatar/UserAvatar";
 
@@ -104,6 +100,7 @@ export default function Header(props) {
   var [isNotificationsUnread, setIsNotificationsUnread] = useState(true);
   var [profileMenu, setProfileMenu] = useState(null);
   var [isSearchOpen, setSearchOpen] = useState(false);
+  var name = localStorage.getItem("name");
 
   return (
     <AppBar position="fixed" className={classes.appBar}>
@@ -278,6 +275,7 @@ export default function Header(props) {
             </MenuItem>
           ))}
         </Menu>
+        Welcome.... {name}
         <Menu
           id="profile-menu"
           open={Boolean(profileMenu)}
@@ -289,18 +287,19 @@ export default function Header(props) {
         >
           <div className={classes.profileMenuUser}>
             <Typography variant="h4" weight="medium">
-              John Smith
+
+              {name}
             </Typography>
-            <Typography
+            {/* <Typography
               className={classes.profileMenuLink}
               component="a"
               color="primary"
               href="https://flatlogic.com"
             >
               Flalogic.com
-            </Typography>
+            </Typography> */}
           </div>
-          <MenuItem
+          {/* <MenuItem
             className={classNames(
               classes.profileMenuItem,
               classes.headerMenuItem,
@@ -323,7 +322,7 @@ export default function Header(props) {
             )}
           >
             <AccountIcon className={classes.profileMenuIcon} /> Messages
-          </MenuItem>
+          </MenuItem> */}
           <div className={classes.profileMenuUser}>
             <Typography
               className={classes.profileMenuLink}

@@ -57,7 +57,6 @@ export { UserProvider, useUserState, useUserDispatch, loginUser, signOut, custom
 function customersList(dispatch, setIsLoading, limit, page, sortby, descending) {
   setIsLoading(true);
 
-
   var accessToken = localStorage.getItem("id_token");
   let config = {
     headers: {
@@ -78,7 +77,7 @@ function customersList(dispatch, setIsLoading, limit, page, sortby, descending) 
     }
 
   }).catch(err => {
-
+    dispatch({ type: 'CUSTOMERLISTING', payload: [] })
     console.log(err);
 
   });
@@ -89,26 +88,72 @@ function customersList(dispatch, setIsLoading, limit, page, sortby, descending) 
 
 // ###########################################################
 
-function updateCustomer(dispatch, id, name, address, email, mobile, gender, history, setIsLoading, setError, limit, page, sortby, descending) {
+function updateCustomer(dispatch, id, name, address, email, mobile, gender, history, setIsLoading, setError, limit, page, sortby, descending, setErrors) {
   setError(false);
   setIsLoading(true);
+
+  const errors = {};
+
+  if (name === "") {
+
+    errors.name = 'Please enter name.';
+
+  }
+  if (address === "") {
+
+    errors.address = 'Please add address.';
+
+  }
+
+
+  if (email === "") {
+
+    errors.email = 'Please enter email address.';
+
+  }
+  if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
+
+
+  } else {
+    errors.email = 'Please enter valid email address.';
+  }
+  if (mobile === "") {
+
+    errors.mobile = 'Please enter mobile no.';
+
+  }
+  if (gender === "Select Gender") {
+
+    errors.gender = 'Please choose gender.';
+
+  }
+  if (errors.name || errors.address || errors.email || errors.mobile || errors.gender) {
+    setErrors(errors);
+    setIsLoading(false);
+    return
+  } else {
+    setErrors({ errors: {} });
+  }
 
   var accessToken = localStorage.getItem("id_token");
   let config = {
     headers: {
+      'Content-Type': 'application/json',
       'Authorization': 'Bearer ' + accessToken
     }
   }
-  const formDataLogin = new FormData();
-  formDataLogin.append('name', name);
-  formDataLogin.append('address', address);
-  formDataLogin.append('email', email);
-  formDataLogin.append('mobile_no', mobile);
-  formDataLogin.append('gender', gender);
+
+
+  const formData = new FormData();
+  formData.append('name', name);
+  formData.append('address', address);
+  formData.append('email', email);
+  formData.append('mobile_no', mobile);
+  formData.append('gender', gender);
 
 
 
-  axios.patch(`${API_BASE_URL}/customers/${id}`, formDataLogin, config).then(response => { return response; }).then(responses => {
+  axios.patch(`${API_BASE_URL}/customers/${id}`, formData, config).then(response => { return response; }).then(responses => {
 
     //console.log("resresresresres", responses && responses.data, responses);
     //history.push(`/code-of-conduct/${slug}`);
@@ -143,7 +188,7 @@ function updateCustomer(dispatch, id, name, address, email, mobile, gender, hist
 
 // ###########################################################
 
-function addCustomer(dispatch, name, address, email, mobile, gender, history, setIsLoading, setError, limit, page, sortby, descending) {
+function addCustomer(dispatch, name, address, email, mobile, gender, history, setIsLoading, setError, limit, page, sortby, descending, setErrors) {
   setError(false);
   setIsLoading(true);
 
@@ -153,16 +198,59 @@ function addCustomer(dispatch, name, address, email, mobile, gender, history, se
       'Authorization': 'Bearer ' + accessToken
     }
   }
-  const formDataLogin = new FormData();
-  formDataLogin.append('name', name);
-  formDataLogin.append('address', address);
-  formDataLogin.append('email', email);
-  formDataLogin.append('mobile_no', mobile);
-  formDataLogin.append('gender', gender);
+
+  const errors = {};
+
+  if (name === "") {
+
+    errors.name = 'Please enter name.';
+
+  }
+  if (address === "") {
+
+    errors.address = 'Please add address.';
+
+  }
+
+
+  if (email === "") {
+
+    errors.email = 'Please enter email address.';
+
+  }
+  if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
+
+
+  } else {
+    errors.email = 'Please enter valid email address.';
+  }
+  if (mobile === "") {
+
+    errors.mobile = 'Please enter mobile no.';
+
+  }
+  if (gender === "Select Gender") {
+
+    errors.gender = 'Please choose gender.';
+
+  }
+  if (errors.name || errors.address || errors.email || errors.mobile || errors.gender) {
+    setErrors(errors);
+    setIsLoading(false);
+    return
+  } else {
+    setErrors({ errors: {} });
+  }
+  const formData = new FormData();
+  formData.append('name', name);
+  formData.append('address', address);
+  formData.append('email', email);
+  formData.append('mobile_no', mobile);
+  formData.append('gender', gender);
 
 
 
-  axios.post(API_BASE_URL + "/customers", formDataLogin, config).then(response => { return response; }).then(responses => {
+  axios.post(API_BASE_URL + "/customers", formData, config).then(response => { return response; }).then(responses => {
 
     //console.log("resresresresres", responses && responses.data, responses);
     //history.push(`/code-of-conduct/${slug}`);
@@ -253,12 +341,13 @@ function loginUser(dispatch, login, password, history, setIsLoading, setError) {
 
   axios.post(API_BASE_URL + "/auth/login", formDataLogin).then(response => { return response; }).then(responses => {
 
-    //console.log("resresresresres", responses && responses.data, responses);
+    // console.log("resresresresresdddd", responses && responses.data);
     //history.push(`/code-of-conduct/${slug}`);
 
     if (responses && responses.status === 200) {
       setTimeout(() => {
         localStorage.setItem('id_token', responses && responses.data && responses.data.token)
+        localStorage.setItem('name', responses && responses.data && responses.data.user && responses.data.user.name)
         setError(null)
         setIsLoading(false)
         dispatch({ type: 'LOGIN_SUCCESS' })
@@ -284,25 +373,27 @@ function loginUser(dispatch, login, password, history, setIsLoading, setError) {
 
   });
 
-
-  // if (!!login && !!password) {
-  //   setTimeout(() => {
-  //     localStorage.setItem('id_token', 1)
-  //     setError(null)
-  //     setIsLoading(false)
-  //     dispatch({ type: 'LOGIN_SUCCESS' })
-
-  //     history.push('/app/dashboard')
-  //   }, 2000);
-  // } else {
-  //   dispatch({ type: "LOGIN_FAILURE" });
-  //   setError(true);
-  //   setIsLoading(false);
-  // }
 }
 
 function signOut(dispatch, history) {
-  localStorage.removeItem("id_token");
-  dispatch({ type: "SIGN_OUT_SUCCESS" });
-  history.push("/login");
+  var accessToken = localStorage.getItem("id_token");
+
+
+
+
+  const requestOptions = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken }
+  };
+  fetch(API_BASE_URL + "/auth/logout", requestOptions)
+    .then(response => response.json())
+    .then(data => {
+      //console.log("data", data)
+      localStorage.removeItem("id_token");
+      dispatch({ type: "SIGN_OUT_SUCCESS" });
+      history.push("/login");
+
+    });
+
+
 }

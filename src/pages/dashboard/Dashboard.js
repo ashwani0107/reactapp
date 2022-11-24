@@ -72,12 +72,12 @@ export default function Dashboard(props) {
   var classes = useStyles();
   var theme = useTheme();
   var [isLoading, setIsLoading] = useState(false);
-  var [listings, setListings] = useState(listing);
+  var [listings, setListings] = useState(listing === undefined ? [] : listing);
   var [limit, setLimit] = useState(LIMIT);
   var [page, setPage] = useState(PAGE);
   var [sortby, setSortby] = useState(SORTBY);
   var [descending, setDescending] = useState(DESCENDING);
-  var [gender, setGender] = useState("Male");
+  var [gender, setGender] = useState("Select Gender");
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
@@ -87,6 +87,7 @@ export default function Dashboard(props) {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const [searchInput, setSearchInput] = useState("")
+  var [errors, setErrors] = useState({});
 
 
 
@@ -99,15 +100,13 @@ export default function Dashboard(props) {
 
 
   const handleSave = () => {
-    addCustomer(userDispatch, name, address, email, mobile, gender, props.history, setIsLoading, setError, limit, page, sortby, descending)
+    addCustomer(userDispatch, name, address, email, mobile, gender, props.history, setIsLoading, setError, limit, page, sortby, descending, setErrors)
 
   }
 
   const searchByName = (e) => {
     setName(e.target.value)
     if (e.target.value != "") {
-
-
       var searchedCustomer = listing && listing.length > 0 && listing.filter(customer => customer.name.toLowerCase() === e.target.value.toLowerCase())
 
       setListings(searchedCustomer && searchedCustomer.length == 0 ? undefined : searchedCustomer.length > 0 ? searchedCustomer : listings)
@@ -146,7 +145,7 @@ export default function Dashboard(props) {
     setGender(e.target.value)
 
 
-    if (e.target.value != "") {
+    if (e.target.value != "Filter by gender") {
       setListings(listings)
       var searchedCustomer = listing && listing.length > 0 && listing.filter(customer => customer.gender.toLowerCase() === e.target.value.toLowerCase())
 
@@ -158,7 +157,7 @@ export default function Dashboard(props) {
   }
 
 
-
+  console.log("listings", listings)
   return (
     <>
       <div>
@@ -173,9 +172,7 @@ export default function Dashboard(props) {
               Add Customer
 
             </Typography>
-            {/* <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-              Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-            </Typography> */}
+
             <TextField
               id="name"
               InputProps={{
@@ -191,9 +188,9 @@ export default function Dashboard(props) {
               type="text"
               fullWidth
             />
-            {/* <Typography color="secondary" className={classes.errorMessage}>
-              Something is wrong with your login or password
-            </Typography> */}
+            {errors.name && <Typography color="secondary" className={classes.errorMessage}>
+              {errors.name}
+            </Typography>}
             <TextField
               id="address"
               InputProps={{
@@ -209,6 +206,9 @@ export default function Dashboard(props) {
               type="text"
               fullWidth
             />
+            {errors.address && <Typography color="secondary" className={classes.errorMessage}>
+              {errors.address}
+            </Typography>}
             <TextField
               id="email"
               InputProps={{
@@ -224,6 +224,9 @@ export default function Dashboard(props) {
               type="text"
               fullWidth
             />
+            {errors.email && <Typography color="secondary" className={classes.errorMessage}>
+              {errors.email}
+            </Typography>}
             <TextField
               id="mobile_no"
               InputProps={{
@@ -237,23 +240,14 @@ export default function Dashboard(props) {
               margin="normal"
               placeholder="Mobile Number"
               type="text"
+              inputProps={{ maxLength: 12 }}
               fullWidth
               required
             />
-            {/* <TextField
-              id="name"
-              InputProps={{
-                classes: {
-                  underline: classes.textFieldUnderline,
-                  input: classes.textField,
-                },
-              }}
+            {errors.mobile && <Typography color="secondary" className={classes.errorMessage}>
+              {errors.mobile}
+            </Typography>}
 
-              margin="normal"
-              placeholder="Name"
-              type="text"
-              fullWidth
-            /> */}
             <Select
               value={gender}
               onChange={e => setGender(e.target.value)}
@@ -266,31 +260,38 @@ export default function Dashboard(props) {
               className={classes.select}
               fullWidth
             >
+              <MenuItem value="Select Gender">Select Gender</MenuItem>
               <MenuItem value="Male">Male</MenuItem>
               <MenuItem value="Female">Female</MenuItem>
 
             </Select>
+            {errors.gender && <Typography color="secondary" className={classes.errorMessage}>
+              {errors.gender}
+            </Typography>}
             {isLoading &&
               <CircularProgress size={26} className={classes.loginLoader} />}
-            <Button
-              variant="contained"
-              color="primary"
-              size="large"
-              onClick={handleSave}
-            >
-              Save
-            </Button>
+            <div style={{ marginTop: '20px' }}>
+              <Button
+                variant="contained"
+                color="primary"
+                size="large"
+                onClick={handleSave}
 
-            <Button
-              variant="contained"
-              color="primary"
-              size="large"
-              style={{ marginLeft: '10px' }}
-              onClick={handleClose}
-            >
+              >
+                Save
+              </Button>
 
-              Close
-            </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                size="large"
+                style={{ marginLeft: '10px' }}
+                onClick={handleClose}
+              >
+
+                Close
+              </Button>
+            </div>
           </Box>
 
         </Modal>
@@ -374,21 +375,33 @@ export default function Dashboard(props) {
             }
             className={classes.select}
             fullWidth
-          >
+          ><MenuItem value="Select Gender">Filter by gender</MenuItem>
             <MenuItem value="Male">Male</MenuItem>
             <MenuItem value="Female">Female</MenuItem>
 
           </Select></Grid>
-        <Grid item xs={12}>
-          <Widget
-            title="Customers"
-            upperTitle
-            noBodyPadding
-            bodyClass={classes.tableWidget}
-          >
-            {listings != undefined ? <Table data={listings} history={props.history} /> : null}
-          </Widget>
-        </Grid>
+        {listings && listings.length > 0 ?
+          <Grid item xs={12}>
+            <Widget
+              title="Customers"
+              upperTitle
+              noBodyPadding
+              bodyClass={classes.tableWidget}
+            >
+              {/* {listings != undefined ? <Table data={listings} history={props.history} /> : null} */}
+              <Table data={listings} history={props.history} />
+
+            </Widget>
+          </Grid> : <Grid item xs={12}>
+            <Widget
+              title="No Customer Listing"
+              upperTitle
+              noBodyPadding
+              bodyClass={classes.tableWidget}
+            >
+
+            </Widget>
+          </Grid>}
       </Grid>
     </>
   );
